@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado da Pesquisa</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_clint.css') }}">
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <h1>Pesquisa Cliente</h1>
+    </div>
+  </header>
+  <div class="container">
+    <h2>Resultado da Pesquisa</h2>
+    {% if tabela %}
+    <table>
+      <tr>
+        <th>Código</th>
+        <th>Loja</th>
+        <th>Nome Cliente</th>
+        <th>Código 2</th>
+        <th>Produto</th>
+        <th>Descrição</th>
+        <th>Data Emissão</th>
+      </tr>
+      {% for linha in tabela.tabela %}
+      <tr>
+        <td>{{ linha.A1_COD }}</td>
+        <td>{{ linha.A1_LOJA }}</td>
+        <td>{{ linha.A1_NOME }}</td>
+        <td>{{ linha.Cod_Cliente }}</td>
+        <td>{{ linha.Produto }}</td>
+        <td>{{ linha.Descricao }}</td>
+        <td>{{ linha.EMISSAO }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>Nenhum resultado encontrado.</p>
+    {% endif %}
+  </div>
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Grupo AIZ. Todos os direitos reservados.(algum direito reservado)</p>
+      <p>Desenvolvido por Eduardo</p>
+    </div>
+  </footer>
+</body>
+</html>
