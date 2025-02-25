@@ -32,7 +32,7 @@ def resultado(cnpj):
   cursor = conexao.cursor()
 
   cursor.execute("""
-SELECT 
+SELECT
   A1.A1_COD
 , A1.A1_LOJA
 , A1.A1_NOME
@@ -40,13 +40,32 @@ SELECT
 , fatu.Produto
 , fatu.Descricao
 , con.CNPJ
-, con.EMISSAO 
+, con.EMISSAO
+, fatu.VLRTOTAL
+, fatu.NTVALOR_CT
+, fatu.NTVALOR_ST
+, fatu.CUSTO_OPERACAO
+, fatu.VALOR_CONTABIL
+,	COUNT(fatu.VLRTOTAL)
+, sum(CUSTO_OPERACAO + VALOR_CONTABIL)
+
 FROM SA1010 A1 
 inner join VW_FATURAMENTO_2023 fatu 
 on A1.A1_COD =  fatu.Cod_Cliente 
 inner join VW_GAIZ_CONTAS_RECEBER con
 on A1.A1_COD = con.CLIENTE
-where con.CNPJ = ?""", (cnpj,))
+where con.CNPJ = ?
+GROUP BY  fatu.VALOR_CONTABIL
+, fatu.CUSTO_OPERACAO, fatu.NTVALOR_ST
+, fatu.NTVALOR_CT
+, fatu.VLRTOTAL, A1.A1_COD
+, A1.A1_LOJA, A1.A1_NOME
+, fatu.Cod_Cliente
+, fatu.Produto
+, fatu.Descricao
+, con.CNPJ
+, con.EMISSAO ;
+""", (cnpj,))
   tabela_SA1 = cursor.fetchall()
 
   tabelas = {
