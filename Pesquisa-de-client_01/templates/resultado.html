@@ -15,7 +15,17 @@
     </div>
   </header>
   <div class="container">
+    <div class="menu">
+      <div class="menu-item">Menu 1</div>
+      <div class="menu-item">Menu 2</div>
+      <div class="menu-item">Menu 3</div>
+    </div>
     <h2>Resultado da Pesquisa</h2>
+    <div class="button-container">
+      <button class="button">Detalhes</button>
+      <button class="button">NN</button>
+      <button class="button">Voltar</button>
+    </div>
     {% if tabela %}
     <div class="tabela_scroll">
       <table>
@@ -23,12 +33,12 @@
           <th>Código</th>
           <th>Loja</th>
           <th>Nome Cliente</th>
-          <th>valor total</th>
+          <th>Valor Total</th>
           <th>Produto</th>
           <th>Descrição</th>
           <th>Data Emissão</th>
           <th>Quantidade</th>
-          <th>soma contadil</th>
+          <th>Soma Contábil</th>
         </tr>  
         {% for linha in tabela.tabela %}
         <tr>
@@ -40,7 +50,7 @@
           <td>{{ linha.Descricao }}</td>
           <td class="data">{{ linha.EMISSAO }}</td>
           <td>{{ linha[13] }}</td>
-          <td>{{linha[14]}}</td>
+          <td>{{ linha[14] }}</td>
         </tr>
         {% endfor %}
       </table>
@@ -50,23 +60,24 @@
     {% endif %}
   </div>
   <footer>
-    <div>
+    <div class="footer-container">
       <p>&copy; Grupo AIZ</p>
+      <p>Eduardo</p>
     </div>
   </footer>
-</body>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-<script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <script>
     $(document).ready(function(){
       $(".data").each(function() {
-            let dataISO = $(this).text().trim();
-            if (dataISO.match(/^\d{4}-\d{2}-\d{2}$/)) { 
-                let partes = dataISO.split("-");
-                let dataFormatada = partes[2] + "/" + partes[1] + "/" + partes[0];
-                $(this).text(dataFormatada);
-            }
-          });
+        let dataISO = $(this).text().trim();
+        if (dataISO.match(/^\d{4}-\d{2}-\d{2}$/)) { 
+          let partes = dataISO.split("-");
+          let dataFormatada = partes[2] + "/" + partes[1] + "/" + partes[0];
+          $(this).text(dataFormatada);
+        }
+      });
     });
-</script>
+  </script>
+</body>
 </html>
