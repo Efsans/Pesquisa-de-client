@@ -1,0 +1,61 @@
+$(document).ready(function() {
+    $('input[name="valor"]').on('input', function() {
+        detectarTipo();
+    });
+
+    function detectarTipo() {
+        const $inputField = $('input[name="valor"]');
+        let valor = $inputField.val().toLowerCase(); // Converte para minúsculas
+        $inputField.val(valor); // Atualiza o campo com o valor convertido
+
+        const $tipoDetectado = $('#tipo-detectado');
+        const $errorDiv = $('#error-message');
+
+        $tipoDetectado.text('Tipo detectado: ');
+        $errorDiv.text('');
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (emailRegex.test(valor)) {
+            $tipoDetectado.text('Tipo detectado: E-mail');
+        } else if (/^\d+$/.test(valor)) {
+            $tipoDetectado.text('Tipo detectado: Número do Ticket (SEQ)');
+        } else {
+            $tipoDetectado.text('Tipo detectado: Desconhecido');
+        }
+    }
+
+    $('form').on('submit', function(event) {
+        if (!validarEntrada()) {
+            event.preventDefault(); // Impede o envio do formulário se houver erro
+        }
+    });
+
+    function validarEntrada() {
+        const $inputField = $('input[name="valor"]');
+        let valor = $inputField.val().toLowerCase(); // Converte para minúsculas
+        $inputField.val(valor); // Atualiza o campo com o valor convertido
+
+        const $errorDiv = $('#error-message');
+        $errorDiv.text('');
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (emailRegex.test(valor) && /\d/.test(valor)) {
+            $errorDiv.text('E-mail não pode conter números.');
+            return false;
+        }
+
+        if (/^[^\d]*$/.test(valor) && !emailRegex.test(valor)) {
+            $errorDiv.text('Número do ticket deve conter apenas números.');
+            return false;
+        }
+
+        if (/[^0-9]/.test(valor) && !emailRegex.test(valor)) {
+            $errorDiv.text('Número do ticket não pode conter letras.');
+            return false;
+        }
+
+        return true;
+    }
+});
