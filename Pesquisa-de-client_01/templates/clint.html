@@ -10,16 +10,20 @@
 <body>
   <header>
     <div class="header-container">
-      <h1>Pesquisa cliente</h1>
+      <h1>Pesquisa Cliente</h1>
     </div>
   </header>
   <div class="container">
     <h2>Pesquisa de Cliente</h2>
     <form action="/" method="post">
-      <input type="text" id="CNPJ" name="CNPJ" placeholder="CNPJ" required><br>
+      <input type="text" id="cod" name="cod" placeholder="clienet" ><br>
+      <input type="text" id="CNPJ" name="CNPJ" placeholder="CNPJ"><br>
+      <input type="text" id="nome" name="nome" placeholder="nome do cliente"><br>
+      <input type="text" id="data1" name="data1" placeholder="faturamento"><br>
+      <input type="text" id="data2" name="data2" placeholder="vencimento do faturamento"><br>
       <button type="submit" class="button">Pesquisar</button><br>
     </form>
-    <!-- <div class="image-container">
+<!-- <div class="image-container">
       <img src="{{ url_for('static', filename='placeholder.png') }}" alt="Imagem do Cliente">
     </div> -->
   </div>
@@ -33,6 +37,7 @@
   <script>
     $(document).ready(function(){
       $('#CNPJ').mask('00.000.000/0000-00');
+      $("#cod").mask('000000');
     });
   </script>
 </body>

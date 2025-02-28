@@ -16,60 +16,106 @@ def get():
 def formatinho(n):
   return re.sub(r'\D', '', n)
 
+@app.route('/azul')
+def ini():
+  return render_template('clint.html')
 @app.route('/')
 def inicial_pesquisar():
-  return render_template('clint.html')
+  return render_template('resultado.html')
 
 @app.route('/', methods=['POST'])
 def pesquisa():
-  checar = request.form['CNPJ']
-  chack = formatinho(checar)
-  return redirect(url_for('resultado', cnpj=chack))
+  
+  mult = request.form['mult']
+  tipo = request.form['tipo_valor']
 
-@app.route('/resultado/<cnpj>')
-def resultado(cnpj):
+  return redirect(url_for('resultado', mult=mult, tipo=tipo))
+
+@app.route('/resultado')
+def resultado():
+  tipo= request.args.get('tipo')
+  valor= request.args.get('mult')
   conexao = pyodbc.connect(get())
   cursor = conexao.cursor()
 
-  cursor.execute("""
+  query="""
 SELECT
-  A1.A1_COD
-, A1.A1_LOJA
-, A1.A1_NOME
-, fatu.Cod_Cliente
-, fatu.Produto
-, fatu.Descricao
-, con.CNPJ
-, con.EMISSAO
-, fatu.VLRTOTAL
-, fatu.NTVALOR_CT
-, fatu.NTVALOR_ST
-, fatu.CUSTO_OPERACAO
-, fatu.VALOR_CONTABIL
-,	COUNT(fatu.VLRTOTAL)
-, sum(CUSTO_OPERACAO + VALOR_CONTABIL)
+	VW.Cod_Cliente
+,	VW.Loja_Cliente
+,	VW.Nome_Cliente
+,	VW.Produto
+,	VW.Descricao
+,	VW.Pedido
+,	VW.CNPJ
+,	VW.Quantidade
+,	VW.Valor_Unitario
+,	VW.Valor_Total
+,	VW.CHASSI
+,	VW.Vendedor
+,COUNT(VW.Valor_Total)
 
-FROM SA1010 A1 
-inner join VW_FATURAMENTO_2023 fatu 
-on A1.A1_COD =  fatu.Cod_Cliente 
-inner join VW_GAIZ_CONTAS_RECEBER con
-on A1.A1_COD = con.CLIENTE
-where con.CNPJ = ?
-GROUP BY  fatu.VALOR_CONTABIL
-, fatu.CUSTO_OPERACAO, fatu.NTVALOR_ST
-, fatu.NTVALOR_CT
-, fatu.VLRTOTAL, A1.A1_COD
-, A1.A1_LOJA, A1.A1_NOME
-, fatu.Cod_Cliente
-, fatu.Produto
-, fatu.Descricao
-, con.CNPJ
-, con.EMISSAO ;
-""", (cnpj,))
-  tabela_SA1 = cursor.fetchall()
+FROM VW_FATURAMENTO_2023 VW
+
+WHERE YEAR(VW.DATA_FAT) = 2025
+
+  """
+  conditions = []
+  params = []
+
+  match tipo:
+    case 'CNPJ':
+        valor = formatinho(valor)
+        conditions.append("VW.CNPJ = ?")
+        params.append(valor)
+
+    case 'Nome':
+        conditions.append("VW.Nome_Cliente = ?")
+        params.append(valor)
+
+    case 'Código do Cliente':
+        valor = formatinho(valor)
+        conditions.append("VW.Cod_Cliente = ?")
+        params.append(valor)
+
+    case 'CPF':
+      valor = formatinho(valor)
+      conditions.append("VW.CNPJ = ?")
+      params.append(valor)    
+
+# Se houver condições, adiciona WHERE
+  if conditions:
+    query += " AND " + " AND ".join(conditions)
+
+
+  query +="""
+  GROUP BY
+  VW.FILIAL
+,	VW.Cod_Cliente
+,	VW.Loja_Cliente
+,	VW.Nome_Cliente
+,	VW.Produto
+,	VW.Descricao
+,	VW.Pedido
+,	VW.CNPJ
+,	VW.Quantidade
+,	VW.Valor_Unitario
+,	VW.Valor_Total
+,	VW.CHASSI
+,	VW.Vendedor
+
+"""
+# VW_GAIZ_CONTAS_RECEBER
+  # print(query)
+  # print(tipo) 
+
+  if params:
+    cursor.execute(query, params)
+  else:
+    cursor.execute(query)  
+  resultado_final = cursor.fetchall()
 
   tabelas = {
-    'tabela': tabela_SA1
+    'tabela': resultado_final
   }
 
   cursor.close()
