@@ -41,36 +41,26 @@
         <tread>
           <tr>
             <th>Código</th>
-            <th>Loja</th>
             <th>Nome Cliente</th>
-            <th>Ano</th>
-            <th>pedido</th>
-            <th>Produto</th>
-            <th>CHASSI</th>
-            <th>Descrição</th>
-            <th>vendedor</th>
-            <th>quantidade vendida</th>
-            <th>Quantidade</th>
+            <th>CNPJ</th>
+            <th>total produtos</th>
+            <th>total pedidos</th>
+            <th>quant. total</th>
             <th>valor total</th>
-            <th>valor unitario</th>
+            <th>valor unitario total</th>
           </tr>
         </tread>
         <tbody>  
           {% for linha in tabela.tabela %}
           <tr>
-            <td><a href="/azul" class="buttonh">{{ linha.Cod_Cliente }}</a></td>
-            <td>{{ linha.Loja_Cliente }}</td>
+            <td><a href="#" data-json="{{ linha | tojson }}" class="buttonh">{{ linha.Cod_Cliente }}</a></td>
             <td>{{ linha.Nome_Cliente }}</td>
+            <td class="cnpj">{{ linha.CNPJ }}</td>
             <td>{{ linha[2] }}</td>
-            <td>{{ linha.Pedido }}</td>
-            <td>{{ linha.Produto }}</td>
-            <td>{{ linha.CHASSI }}</td>
-            <td>{{ linha.Descricao }}</td>
-            <td>{{ linha.Vendedor }}</td>
-            <td>{{ linha[12] }}</td>
-            <td class="int">{{ linha.Quantidade }}</td>
-            <td class="form">{{ linha.Valor_Total }}</td>
-            <td class="form">{{ linha.Valor_Unitario }}</td>
+            <td>{{ linha[3] }}</td>
+            <td class="int">{{ linha[5] }}</td>
+            <td class="form">{{ linha[7] }}</td>
+            <td class="form">{{ linha[6] }}</td>
             
           </tr>
           {% endfor %}
@@ -117,7 +107,7 @@
     document.getElementById("alerta").innerText = "Tipo detectado: " + tipo;
     document.getElementById("tipo_valor").value = tipo;
 }
-$(document).ready(function() {
+  $(document).ready(function() {
     // Formata os valores monetários para o padrão brasileiro
     $(".form").each(function() {
       let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
@@ -129,8 +119,22 @@ $(document).ready(function() {
       let valor = parseInt($(this).text()) || 0;
       $(this).text(valor);
     });
-});  
 
+    $(".cnpj").mask("00.000.000/0000-00")
+});  
+  
+  document.querySelectorAll('.buttonh').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+        e.preventDefault(); // Evita o comportamento padrão do link
+        
+        // Coleta o JSON da linha
+        const linhaData = JSON.parse(this.getAttribute('data-json'));
+
+        // Redireciona para a nova URL com os dados em formato JSON
+        const urlParams = new URLSearchParams(linhaData).toString();
+        window.location.href = `/detalhes_cliente/${linhaData.Cod_Cliente}?${urlParams}`;
+    });
+});
 
   </script>
 </body>

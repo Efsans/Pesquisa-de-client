@@ -16,9 +16,6 @@ def get():
 def formatinho(n):
   return re.sub(r'\D', '', n)
 
-@app.route('/azul')
-def ini():
-  return render_template('clint.html')
 @app.route('/')
 def inicial_pesquisar():
   return render_template('resultado.html')
@@ -30,7 +27,7 @@ def pesquisa():
   tipo = request.form['tipo_valor']
 
   return redirect(url_for('resultado', mult=mult, tipo=tipo))
-
+##############ressultado normal#######################
 @app.route('/resultado')
 def resultado():
   tipo= request.args.get('tipo')
@@ -41,22 +38,18 @@ def resultado():
   query="""
 SELECT
 	VW.Cod_Cliente
-,	VW.Loja_Cliente
 ,	VW.Nome_Cliente
-,	VW.Produto
-,	VW.Descricao
-,	VW.Pedido
+,	COUNT(VW.Produto)
+,	COUNT(VW.Pedido)
 ,	VW.CNPJ
-,	VW.Quantidade
-,	VW.Valor_Unitario
-,	VW.Valor_Total
-,	VW.CHASSI
-,	VW.Vendedor
-,COUNT(VW.Valor_Total)
+,	SUM(VW.Quantidade)
+,	SUM(VW.Valor_Unitario)
+,	SUM(VW.Valor_Total)
+, SUM(VW.VLRTOTAL)
 
 FROM VW_FATURAMENTO_2023 VW
 
-WHERE YEAR(VW.DATA_FAT) = 2025
+
 
   """
   conditions = []
@@ -84,24 +77,15 @@ WHERE YEAR(VW.DATA_FAT) = 2025
 
 # Se houver condições, adiciona WHERE
   if conditions:
-    query += " AND " + " AND ".join(conditions)
+    query += " WHERE " + " AND ".join(conditions)
 
 
   query +="""
   GROUP BY
-  VW.FILIAL
-,	VW.Cod_Cliente
-,	VW.Loja_Cliente
+	VW.Cod_Cliente
 ,	VW.Nome_Cliente
-,	VW.Produto
-,	VW.Descricao
-,	VW.Pedido
 ,	VW.CNPJ
-,	VW.Quantidade
-,	VW.Valor_Unitario
-,	VW.Valor_Total
-,	VW.CHASSI
-,	VW.Vendedor
+
 
 """
 # VW_GAIZ_CONTAS_RECEBER
@@ -121,6 +105,65 @@ WHERE YEAR(VW.DATA_FAT) = 2025
   cursor.close()
   conexao.close()
   return render_template('resultado.html', tabela=tabelas)
+
+################resultado do click no campo da tabela################# 
+@app.route('/detalhes_cliente/<codigo>', methods=['GET'])
+def ini(codigo):
+  codigo1 = request.args.get('Cod_Cliente')
+  conexao = pyodbc.connect(get())
+  cursor = conexao.cursor()
+  
+  query="""
+  SELECT
+	VW.Cod_Cliente
+, VW.Loja_Cliente
+, VW.FILIAL
+, VW.MUNICIPIO
+, VW.REGIAO_DESC  
+,	VW.Nome_Cliente
+,	VW.CNPJ
+, SUM(VW.VLRTOTAL)
+
+FROM VW_FATURAMENTO_2023 VW
+  
+  """
+  conditions = []
+  params = []
+
+  if codigo:
+    conditions.append("VW.Cod_Cliente = ?")
+    params.append(codigo1)
+
+# Se houver condições, adiciona WHERE
+  if conditions:
+    query += " WHERE " + " AND ".join(conditions)
+
+
+  query +="""
+  GROUP BY
+	VW.Cod_Cliente
+, VW.Loja_Cliente
+, VW.FILIAL
+, VW.MUNICIPIO
+, VW.REGIAO_DESC  
+,	VW.Nome_Cliente
+,	VW.CNPJ
+
+
+"""
+  if params:
+    cursor.execute(query, params)
+  else:
+    cursor.execute(query)  
+  resultado_final = cursor.fetchall()
+
+  tabelas = {
+    'tabela': resultado_final
+  }
+
+  cursor.close()
+  conexao.close()
+  return render_template('clint.html', tabela=tabelas)  
 
 if __name__ == '__main__':
     app.run(debug=True)

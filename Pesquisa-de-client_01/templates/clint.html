@@ -4,41 +4,128 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesquisa de Cliente</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style_clint.css') }}">
+  <title>Resultado da Pesquisa</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_result.css') }}">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 </head>
 <body>
   <header>
     <div class="header-container">
-      <h1>Pesquisa Cliente</h1>
+      <h1>detalhes Pesquisa</h1>
     </div>
   </header>
   <div class="container">
-    <h2>Pesquisa de Cliente</h2>
-    <form action="/" method="post">
-      <input type="text" id="cod" name="cod" placeholder="clienet" ><br>
-      <input type="text" id="CNPJ" name="CNPJ" placeholder="CNPJ"><br>
-      <input type="text" id="nome" name="nome" placeholder="nome do cliente"><br>
-      <input type="text" id="data1" name="data1" placeholder="faturamento"><br>
-      <input type="text" id="data2" name="data2" placeholder="vencimento do faturamento"><br>
-      <button type="submit" class="button">Pesquisar</button><br>
-    </form>
-<!-- <div class="image-container">
-      <img src="{{ url_for('static', filename='placeholder.png') }}" alt="Imagem do Cliente">
-    </div> -->
+    <div class="menu">
+      <div class="menu-item">Menu 1</div>
+      <div class="menu-item">Menu 2</div>
+    </div>
+    <div class="button-container">
+      <form action="/detalhes_cliente/<codigo>" method="get">
+        <input type="text" id="mult" name="mult" placeholder="pesquise aqui" oninput="identificarTipo(this)"><br>
+        <input type="hidden" name="tipo_valor" id="tipo_valor"> 
+        <p id="alerta" style="font-weight: bold; color: rgb(3, 2, 71);"></p><br>
+        <!-- <input type="text" id="CNPJ" name="CNPJ" placeholder="CNPJ"><br>
+        <input type="text" id="nome" name="nome" placeholder="nome do cliente"><br>
+        <input type="text" id="data1" name="data1" placeholder="faturamento"><br>
+        <input type="text" id="data2" name="data2" placeholder="vencimento do faturamento"><br>-->
+        <button type="submit" class="button">Pesquisar</button><br>
+      </form>
+      <!-- <button class="button">Detalhes</button>
+      <button class="button">NN</button>
+      <button class="button">Voltar</button> -->
+    </div>
+    {% if tabela %}
+    <div class="tabela_scroll">
+      <table>
+        <tread>
+          <tr>
+            <th>Código</th>
+            <th>Lojas</th>
+            <th>filial</th>
+            <th>CNPJ</th>
+            <th>total produtos</th>
+            <th>total pedidos</th>
+            <th>quant. total</th>
+            <th>valor total</th>
+          </tr>
+        </tread>
+        <tbody>  
+          {% for linha in tabela.tabela %}
+          <tr>
+            <td><a href="#" onclick="redirecionar ('{{ linha.Cod_Cliente }}')" class="buttonh">{{ linha.Cod_Cliente }}</a></td>
+            <td>{{ linha.Loja_Cliente }}</td>
+            <td>{{ linha.Nome_Cliente }}</td>
+            <td>{{ linha.FILIAL }}</td>
+            <td>{{ linha.MUNICIPIO }}</td>
+            <td>{{ linha.REGIAO_DESC}}</td>
+            <td class="cnpj">{{ linha.CNPJ }}</td>
+            <td class="form">{{ linha[7] }}</td>
+            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p>Nenhum resultado encontrado.</p>
+    {% endif %}
   </div>
   <footer>
     <div class="footer-container">
       <p>&copy; Eduardo</p>
+      
     </div>
   </footer>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script>
-    $(document).ready(function(){
-      $('#CNPJ').mask('00.000.000/0000-00');
-      $("#cod").mask('000000');
+  function identificarTipo(input) {
+    let valor = input.value.replace(/\D/g, ''); // Remove tudo que não for número
+    let tipo = "Desconhecido";
+
+    if (/^\d{6}$/.test(valor)) { 
+        tipo = "Código do Cliente"; // 6 números
+    } 
+    else if (/^\d{14}$/.test(valor)) { 
+        // Formata CNPJ: 99.999.999/9999-99
+        valor = valor.replace(/(\d{2})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1/$2");
+        valor = valor.replace(/(\d{4})(\d{2})$/, "$1-$2");
+        tipo = "CNPJ";
+    } 
+    else if (/^\d{11}$/.test(valor)) { 
+        // Formata CPF: 999.999.999-99
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+        valor = valor.replace(/(\d{3})(\d{2})$/, "$1-$2");
+        tipo = "CPF";
+    } 
+
+    input.value = valor;
+    document.getElementById("alerta").innerText = "Tipo detectado: " + tipo;
+    document.getElementById("tipo_valor").value = tipo;
+}
+  $(document).ready(function() {
+    // Formata os valores monetários para o padrão brasileiro
+    $(".form").each(function() {
+      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
+      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     });
+
+    // Remove os números decimais para os inteiros
+    $(".int").each(function() {
+      let valor = parseInt($(this).text()) || 0;
+      $(this).text(valor);
+    });
+
+    $(".cnpj").mask("00.000.000/0000-00")
+});  
+  
+  function redirecionar(codigo){
+    window.location.href = `/detalhes_cliente/${codigo}`
+  }
+
   </script>
 </body>
 </html>
