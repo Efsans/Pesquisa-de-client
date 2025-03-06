@@ -59,3 +59,12 @@ $(document).ready(function() {
         return true;
     }
 });
+####################################################################
+$(function(){
+		$('#Tabela tbody tr').on('click',function(){
+			const id = $(this).attr('id');
+			const cod = $('#Tabela tbody tr[id='+id+'] td').eq(0).html(),
+			nome = $('#Tabela tbody tr[id='+id+'] td').eq(1).html();
+			$('#frm #cod').val( cod );$('#frm #nome').val( nome );
+		});
+	});
