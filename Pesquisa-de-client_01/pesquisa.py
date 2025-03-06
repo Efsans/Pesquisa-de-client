@@ -2,6 +2,7 @@ import pandas as pd
 import pyodbc
 from flask import Flask, request, render_template, redirect, url_for
 import re
+import jsonify
 
 app = Flask(__name__)
 
@@ -49,8 +50,6 @@ SELECT
 
 FROM VW_FATURAMENTO_2023 VW
 
-
-
   """
   conditions = []
   params = []
@@ -86,7 +85,6 @@ FROM VW_FATURAMENTO_2023 VW
 ,	VW.Nome_Cliente
 ,	VW.CNPJ
 
-
 """
 # VW_GAIZ_CONTAS_RECEBER
   # print(query)
@@ -107,9 +105,13 @@ FROM VW_FATURAMENTO_2023 VW
   return render_template('resultado.html', tabela=tabelas)
 
 ################resultado do click no campo da tabela################# 
-@app.route('/detalhes_cliente/<codigo>', methods=['GET'])
-def ini(codigo):
-  codigo1 = request.args.get('Cod_Cliente')
+@app.route('/detalhes_cliente', methods=['PUT'])
+def ini():
+
+  cod = request.form.get('cod')
+  nome = request.form.get('nome')
+  cnpj = request.form.get('cnpj')
+
   conexao = pyodbc.connect(get())
   cursor = conexao.cursor()
   
@@ -130,9 +132,9 @@ FROM VW_FATURAMENTO_2023 VW
   conditions = []
   params = []
 
-  if codigo:
+  if cod:
     conditions.append("VW.Cod_Cliente = ?")
-    params.append(codigo1)
+    params.append(cod)
 
 # Se houver condições, adiciona WHERE
   if conditions:
@@ -155,6 +157,7 @@ FROM VW_FATURAMENTO_2023 VW
     cursor.execute(query, params)
   else:
     cursor.execute(query)  
+  
   resultado_final = cursor.fetchall()
 
   tabelas = {
@@ -163,7 +166,15 @@ FROM VW_FATURAMENTO_2023 VW
 
   cursor.close()
   conexao.close()
-  return render_template('clint.html', tabela=tabelas)  
+  return render_template('clint.html', tabela=tabelas)
+  
+  # return jsonify({
+  # 'redirect_url': '/pagina_resultado/' +  cod
+  # })
+# def pagina_resultado(cod_cliente):
+#     # Aqui você pode buscar informações e mostrar os detalhes relacionados ao Cod_Cliente
+#   return render_template('detalhes_cliente.html', cod_cliente=cod_cliente)
+#   # return render_template('clint.html', tabela=tabelas)  
 
 if __name__ == '__main__':
     app.run(debug=True)
