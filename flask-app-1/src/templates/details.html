@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Cliente</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Detalhes do Cliente</h1>
+        {% if cliente %}
+            <table class="table">
+                <tr>
+                    <th>Código do Cliente</th>
+                    <td>{{ cliente.Cod_Cliente }}</td>
+                </tr>
+                <tr>
+                    <th>Nome do Cliente</th>
+                    <td>{{ cliente.Nome_Cliente }}</td>
+                </tr>
+                <tr>
+                    <th>CNPJ</th>
+                    <td>{{ cliente.CNPJ }}</td>
+                </tr>
+                <!-- Adicione mais campos conforme necessário -->
+            </table>
+        {% else %}
+            <p>Cliente não encontrado.</p>
+        {% endif %}
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar</a>
+    </div>
+</body>
+</html>

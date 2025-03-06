@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Clientes</h1>
+        <form class="form-inline my-2 my-lg-0" method="get" action="/">
+            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Buscar cliente" aria-label="Buscar">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+        </form>
+        <table class="table mt-3">
+            <thead>
+                <tr>
+                    <th scope="col">Código do Cliente</th>
+                    <th scope="col">Nome do Cliente</th>
+                    <th scope="col">CNPJ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in tabela %}
+                <tr>
+                    <td><a href="{{ url_for('details', codigo=cliente.Cod_Cliente) }}">{{ cliente.Cod_Cliente }}</a></td>
+                    <td><a href="{{ url_for('details', codigo=cliente.Cod_Cliente) }}">{{ cliente.Nome_Cliente }}</a></td>
+                    <td><a href="{{ url_for('details', codigo=cliente.Cod_Cliente) }}">{{ cliente.CNPJ }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

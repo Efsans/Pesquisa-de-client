@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Cliente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% include 'layout.html' %}
+  <header>
+    <h1>Detalhes do Cliente</h1>
+  </header>
+  <div class="container">
+    <div class="details">
+      <h2>Informações do Cliente</h2>
+      <p><strong>Código do Cliente:</strong> {{ cliente.Cod_Cliente }}</p>
+      <p><strong>Nome do Cliente:</strong> {{ cliente.Nome_Cliente }}</p>
+      <p><strong>CNPJ:</strong> {{ cliente.CNPJ }}</p>
+      <p><strong>Lojas:</strong> {{ cliente.Loja_Cliente }}</p>
+      <p><strong>Filial:</strong> {{ cliente.FILIAL }}</p>
+      <p><strong>Município:</strong> {{ cliente.MUNICIPIO }}</p>
+      <p><strong>Região:</strong> {{ cliente.REGIAO_DESC }}</p>
+      <p><strong>Valor Total:</strong> {{ cliente.VLRTOTAL }}</p>
+    </div>
+    <div class="button-container">
+      <a href="{{ url_for('index') }}" class="button">Voltar</a>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; 2023 Sua Empresa</p>
+  </footer>
+</body>
+</html>
