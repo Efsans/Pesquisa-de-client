@@ -21,14 +21,11 @@
       <div class="menu-item">Menu 3</div>
     </div>
     <div class="button-container">
-      <form action="/" method="post">
+      <form id="frm" action="/" method="post">
         <input type="text" id="mult" name="mult" placeholder="pesquise aqui" oninput="identificarTipo(this)"><br>
         <input type="hidden" name="tipo_valor" id="tipo_valor"> 
         <p id="alerta" style="font-weight: bold; color: rgb(3, 2, 71);"></p><br>
-        <!-- <input type="text" id="CNPJ" name="CNPJ" placeholder="CNPJ"><br>
-        <input type="text" id="nome" name="nome" placeholder="nome do cliente"><br>
-        <input type="text" id="data1" name="data1" placeholder="faturamento"><br>
-        <input type="text" id="data2" name="data2" placeholder="vencimento do faturamento"><br>-->
+
         <button type="submit" class="button">Pesquisar</button><br>
       </form>
       <!-- <button class="button">Detalhes</button>
@@ -52,10 +49,10 @@
         </thead>
         <tbody>  
           {% for linha in tabela.tabela %}
-          <tr>
-            <td><a href="#" class="buttonh" data-cod="{{ linha.Cod_Cliente }}">{{ linha.Cod_Cliente }}</a></td>
-            <td>{{ linha.Nome_Cliente }}</td>
-            <td class="cnpj">{{ linha.CNPJ }}</td>
+          <tr >
+            <td><a class="buttonh codigo" data-cod="{{ linha.Cod_Cliente }}">{{ linha.Cod_Cliente }}</a></td>
+            <td><a class="buttonh name" data-nome="{{ linha.Nome_Cliente }}" >{{ linha.Nome_Cliente }}</a></td>
+            <td><a class="cnpj buttonh" data-cnpj="{{ linha.CNPJ }}">{{ linha.CNPJ }}</a></td>
             <td>{{ linha[2] }}</td>
             <td>{{ linha[3] }}</td>
             <td class="int">{{ linha[5] }}</td>
@@ -73,10 +70,17 @@
   </div>
   <footer>
     <div class="footer-container">
-      <p>&copy; Eduardo</p>
-      
+      <p>&copy; Eduardo</p> 
     </div>
   </footer>
+  <form id="fdc" action="/chack" method="post">
+    <input type="hidden" id="codig" name="codig">
+    <input type="hidden" id="name" name="name">
+    <input type="hidden" id="cnpj" name="cnpj">
+    <input type="hidden" id="tipo" name="tipo">
+    
+  </form>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script>
@@ -123,38 +127,35 @@
     $(".cnpj").mask("00.000.000/0000-00")
 });
 // #######################
-$(function(){
-    $('#Tabela tbody tr').on('click', function(){
-        // Captura todas as células da linha clicada
-        var $cols = $(this).children('td');
+  $(function(){
+    $('a.buttonh').on('click', function(e) {
+    // e.preventDefault();
+    var tr = $(this).closest('tr');
+    
+    // Pega os valores de cada célula da linha
+    var namecliente = tr.find('.name').text();  // Supondo que as células com o nome tenham a classe 'name'
+    var cnpjcliente = tr.find('.cnpj').text();  // Supondo que as células com o CNPJ tenham a classe 'cnpj'
+    var codCliente = tr.find('.codigo').text();
 
-        // Cria um objeto com os valores de cada coluna
-        var data = {
-            cod: $cols.eq(0).text().trim(),
-            nome: $cols.eq(1).text().trim(),
-            cnpj: $cols.eq(2).text().trim(),
-            total_produtos: $cols.eq(3).text().trim(),
-            total_pedidos: $cols.eq(4).text().trim(),
-            quant_total: $cols.eq(5).text().trim(),
-            valor_total: $cols.eq(6).text().trim(),
-            valor_unitario_total: $cols.eq(7).text().trim()
-        };
+    var tipo = '';
+    if ($(this).hasClass('codigo')) {
+      tipo = 'Códigopag1';
+    } else if ($(this).hasClass('nome')) {
+      tipo = 'Nomepag1';
+    } else if ($(this).hasClass('cnpj')) {
+      tipo = 'CNPJpag1';
+    }
+    // Preenche os campos ocultos com os dados da linha
+    $('#name').val(namecliente);
+    $('#cnpj').val(cnpjcliente);
+    $('#codig').val(codCliente);
+    $('#tipo').val(tipo);
 
-        // Envia os dados para a rota Flask via POST
-        $.ajax({
-            url: '/detalhes_cliente', // Substitua pela rota desejada no Flask
-            type: 'PUT',
-            data: data,
-            success: function(response) {
-                console.log("Dados enviados com sucesso!", response);
-            },
-            error: function(xhr, status, error) {
-                console.error("Erro ao enviar os dados:", error);
-            }
-        });
-    });
+    $('#fdc').submit();
+  });
 });
 
+ 
 
   </script>
 </body>

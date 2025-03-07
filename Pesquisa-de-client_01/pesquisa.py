@@ -28,7 +28,21 @@ def pesquisa():
   tipo = request.form['tipo_valor']
 
   return redirect(url_for('resultado', mult=mult, tipo=tipo))
-##############ressultado normal#######################
+
+@app.route('/chack', methods=['POST'])
+def chack():
+  tipo = request.form['tipo']
+  match tipo:
+    case 'Códigopag1':
+      codigo = request.form['codig']
+      nome = request.form['name']
+      cnpj= request.form['cnpj']
+      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj))
+
+
+
+
+##############ressultado filtro#######################
 @app.route('/resultado')
 def resultado():
   tipo= request.args.get('tipo')
@@ -86,9 +100,6 @@ FROM VW_FATURAMENTO_2023 VW
 ,	VW.CNPJ
 
 """
-# VW_GAIZ_CONTAS_RECEBER
-  # print(query)
-  # print(tipo) 
 
   if params:
     cursor.execute(query, params)
@@ -104,13 +115,12 @@ FROM VW_FATURAMENTO_2023 VW
   conexao.close()
   return render_template('resultado.html', tabela=tabelas)
 
-################resultado do click no campo da tabela################# 
-@app.route('/detalhes_cliente', methods=['PUT'])
-def ini():
-
-  cod = request.form.get('cod')
-  nome = request.form.get('nome')
-  cnpj = request.form.get('cnpj')
+################resultados do click no campo da tabela################# 
+@app.route('/detalhes/<codigo>')
+def ini(codigo):
+  codigo=codigo
+  nome = request.args.get('nome')
+  cnpj = request.args.get('cnpj')
 
   conexao = pyodbc.connect(get())
   cursor = conexao.cursor()
@@ -132,9 +142,9 @@ FROM VW_FATURAMENTO_2023 VW
   conditions = []
   params = []
 
-  if cod:
+  if codigo:
     conditions.append("VW.Cod_Cliente = ?")
-    params.append(cod)
+    params.append(codigo)
 
 # Se houver condições, adiciona WHERE
   if conditions:
@@ -166,15 +176,7 @@ FROM VW_FATURAMENTO_2023 VW
 
   cursor.close()
   conexao.close()
-  return render_template('clint.html', tabela=tabelas)
+  return render_template('clint.html', tabela=tabelas, nome=nome, codigo=codigo)
   
-  # return jsonify({
-  # 'redirect_url': '/pagina_resultado/' +  cod
-  # })
-# def pagina_resultado(cod_cliente):
-#     # Aqui você pode buscar informações e mostrar os detalhes relacionados ao Cod_Cliente
-#   return render_template('detalhes_cliente.html', cod_cliente=cod_cliente)
-#   # return render_template('clint.html', tabela=tabelas)  
-
 if __name__ == '__main__':
     app.run(debug=True)
