@@ -39,6 +39,10 @@
           <tr>
             <th>Código</th>
             <th>Nome Cliente</th>
+            <th>Loja</th>
+            <th>Rrgião</th>
+            <th>Estado Entrega</th>
+            <th>Municipio Entraga</th>
             <th>CNPJ</th>
             <th>total produtos</th>
             <th>total pedidos</th>
@@ -50,9 +54,13 @@
         <tbody>  
           {% for linha in tabela.tabela %}
           <tr >
-            <td><a class="buttonh codigo" data-cod="{{ linha.Cod_Cliente }}">{{ linha.Cod_Cliente }}</a></td>
-            <td><a class="buttonh name" data-nome="{{ linha.Nome_Cliente }}" >{{ linha.Nome_Cliente }}</a></td>
-            <td><a class="cnpj buttonh" data-cnpj="{{ linha.CNPJ }}">{{ linha.CNPJ }}</a></td>
+            <td class="buttonj"><a class="buttonh codigo" data-cod="{{ linha.Cod_Cliente }}">{{ linha.Cod_Cliente }}</a></td>
+            <td class="buttonj"><a class="buttonh name" data-nome="{{ linha.Nome_Cliente }}" >{{ linha.Nome_Cliente }}</a></td>
+            <td class="buttonj"><a class="buttonh Loja" data-cnpj="{{ linha.Loja_Cliente }}">{{ linha.Loja_Cliente }}</a></td>
+            <td class="buttonj"><a class="buttonh reg" data-cnpj="{{ linha.REGIAO_DESC }}">{{ linha.REGIAO_DESC }}</a></td>
+            <td class="buttonj"><a class="buttonh estado" data-cnpj="{{ linha.Estado_Entrega }}">{{ linha.Estado_Entrega }}</a></td>
+            <td class="buttonj"><a class="buttonh muni" data-cnpj="{{ linha.Minucipio_entrega }}">{{ linha.Minucipio_entrega }}</a></td>
+            <td class="buttonj"><a class="cnpj buttonh" data-cnpj="{{ linha.CNPJ }}">{{ linha.CNPJ }}</a></td>
             <td>{{ linha[2] }}</td>
             <td>{{ linha[3] }}</td>
             <td class="int">{{ linha[5] }}</td>
@@ -77,7 +85,12 @@
     <input type="hidden" id="codig" name="codig">
     <input type="hidden" id="name" name="name">
     <input type="hidden" id="cnpj" name="cnpj">
+    <input type="hidden" id="loja" name="loja">
+    <input type="hidden" id="reg" name="reg">
+    <input type="hidden" id="estado" name="estado">
+    <input type="hidden" id="muni" name="muni">
     <input type="hidden" id="tipo" name="tipo">
+
     
   </form>
 
@@ -114,9 +127,10 @@
   $(document).ready(function() {
     // Formata os valores monetários para o padrão brasileiro
     $(".form").each(function() {
-      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
-      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    });
+    // Pega o texto, converte para float e formata
+    let valor = parseFloat($(this).text().replace('.', '').replace(',', '.')) || 0;
+    $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+});
 
     // Remove os números decimais para os inteiros
     $(".int").each(function() {
@@ -136,6 +150,11 @@
     var namecliente = tr.find('.name').text();  // Supondo que as células com o nome tenham a classe 'name'
     var cnpjcliente = tr.find('.cnpj').text();  // Supondo que as células com o CNPJ tenham a classe 'cnpj'
     var codCliente = tr.find('.codigo').text();
+    var lojaCliente = tr.find('.Loja').text();
+    var regCliente = tr.find('.reg').text();
+    var estadoCliente = tr.find('.estado').text();
+    var muniCliente = tr.find('.muni').text();
+
 
     var tipo = '';
     if ($(this).hasClass('codigo')) {
@@ -144,11 +163,23 @@
       tipo = 'Nomepag1';
     } else if ($(this).hasClass('cnpj')) {
       tipo = 'CNPJpag1';
+    } else if ($(this).hasClass('Loja')){
+      tipo = 'Lojapag1'
+    } else if ($(this).hasClass('reg')){
+      tipo = 'regpag1'
+    } else if ($(this).hasClass('estado')){
+      tipo = 'estadopag1'
+    } else if ($(this).hasClass('muni')){
+      tipo = 'munipag1'
     }
     // Preenche os campos ocultos com os dados da linha
     $('#name').val(namecliente);
     $('#cnpj').val(cnpjcliente);
     $('#codig').val(codCliente);
+    $('#loja').val(lojaCliente);
+    $('#reg').val(regCliente);
+    $('#estado').val(estadoCliente);
+    $('#muni').val(muniCliente);
     $('#tipo').val(tipo);
 
     $('#fdc').submit();

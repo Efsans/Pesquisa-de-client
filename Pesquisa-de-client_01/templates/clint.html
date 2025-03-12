@@ -16,49 +16,96 @@
   </header>
   <div class="container">
     <div>
-      <div>codigo cliente: {{ codigo }}</div>
-      <div>nome do cliente: {{ nome }}</div>
+      {% if tipo == "codigo" %}
+        <div>codigo cliente: {{ codigo }}</div>
+        <div>nome do cliente: {{ nome }}</div>
+        <div>Cnpj do cliente: {{ CNPJ }}</div>
+        <div>loja do cliente: {{ loja }}</div>
+        <div>região do cliente: {{ reg }}</div>
+        <div>estado do cliente: {{ estado }}</div>
+        <div>municipio do cliente: {{ muni }}</div>
+      {% elif tipo == "nf" %}
+        <div>nota fiscal: {{ nf }}</div>
+        <div>codigo: {{ codigo }}</div>
+      {%endif%}    
     </div>
     <div class="button-container">
       <!-- <button class="button">Detalhes</button>
       <button class="button">NN</button>
       <button class="button">Voltar</button> -->
     </div>
-    {% if tabela %}
-    <div class="tabela_scroll">
-      <table>
-        <tread>
-          <tr>
-            <th>Código</th>
-            <th>Lojas</th>
-            <th>filial</th>
-            <th>CNPJ</th>
-            <th>total produtos</th>
-            <th>total pedidos</th>
-            <th>quant. total</th>
-            <th>valor total</th>
-          </tr>
-        </tread>
-        <tbody>  
-          {% for linha in tabela.tabela %}
-          <tr>
-            <td><a href="#" onclick="redirecionar ('{{ linha.Cod_Cliente }}')" class="buttonh">{{ linha.Cod_Cliente }}</a></td>
-            <td>{{ linha.Loja_Cliente }}</td>
-            <td>{{ linha.Nome_Cliente }}</td>
-            <td>{{ linha.FILIAL }}</td>
-            <td>{{ linha.MUNICIPIO }}</td>
-            <td>{{ linha.REGIAO_DESC}}</td>
-            <td class="cnpj">{{ linha.CNPJ }}</td>
-            <td class="form">{{ linha[7] }}</td>
-            
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <p>Nenhum resultado encontrado.</p>
+    {% if tipo == "nf" %}
+      {% if tabela %}
+      <div class="tabela_scroll">
+        <table>
+          <tread>
+            <tr>
+              <th>inf</th>
+              <th>produto</th>
+              <th>descrição</th>
+              <th>descrição cien.</th>
+              <th>quantidade</th>
+              <th>valor unitario</th>
+
+            </tr>
+          </tread>
+          <tbody>  
+            {% for linha in tabela.tabela %}
+            <tr>
+              <td>{{ linha.ITEMNF }}</td>
+              <td>{{ linha.Produto }}</td>
+              <td>{{ linha.Descricao }}</td>
+              <td>{{ linha.DescricaoCientifica }}</td>
+              <td>{{ linha.Quantidade }}</td>
+              <td>{{ linha.Valor_Unitario }}</td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Nenhum resultado encontrado.</p>
+      {% endif %}
+    <!-- fim do if do tipo   -->
     {% endif %}
+    
+    
+    {% if tipo == "codigo" %}
+      {% if tabela %}
+      <div class="tabela_scroll">
+        <table>
+          <tread>
+            <tr>
+              <th>nota fiscal</th>
+              <th>serie nf</th>
+              <th>valor total</th>
+              <th>volume</th>
+
+            </tr>
+          </tread>
+          <tbody>  
+            {% for linha in tabela.tabela %}
+            <tr>
+              <td class="buttonj"><a class="buttonh nf" data-cod="{{ linha.NF }}">{{ linha.NF }}</a></td>
+              <td class="buttonj"><a class="buttonh inf" data-cod="{{ linha.ITEMNF }}" >{{ linha.ITEMNF }}</a></td>
+              <td class="form">{{ linha.VLRTOTAL }}</a></td>
+              <td class="int">{{ linha[4] }}</a></td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p>Nenhum resultado encontrado.</p>
+      {% endif %}
+    <!-- fim do if do tipo   -->
+    {% endif %}
+
+
+
+<!-- ############################################# -->
   </div>
   <footer>
     <div class="footer-container">
@@ -66,15 +113,32 @@
       
     </div>
   </footer>
+  <form id="fdc" action="/chack" method="post">
+    <input type="hidden" id="nf" name="nf">
+    <input type="hidden" id="inf" name="inf">
+    <input type="hidden" id="tipo" name="tipo">
+
+    <input type="hidden" id="codig" name="codig">
+    <input type="hidden" id="name" name="name">
+    <input type="hidden" id="cnpj" name="cnpj">
+    <input type="hidden" id="loja" name="loja">
+    <input type="hidden" id="reg" name="reg">
+    <input type="hidden" id="estado" name="estado">
+    <input type="hidden" id="muni" name="muni">
+
+    
+  </form>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script>
   $(document).ready(function() {
     // Formata os valores monetários para o padrão brasileiro
     $(".form").each(function() {
-      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
-      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-    });
+    // Pega o texto, converte para float e formata
+    let valor = parseFloat($(this).text().replace('.', '').replace(',', '.')) || 0;
+    $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+});
 
     // Remove os números decimais para os inteiros
     $(".int").each(function() {
@@ -83,7 +147,50 @@
     });
 
     $(".cnpj").mask("00.000.000/0000-00")
-});  
+});
+$(".int").each(function() {
+      let valor = parseInt($(this).text()) || 0;
+      $(this).text(valor);
+    });
+    $(".form").each(function() {
+      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
+      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    });
+    
+    
+    $(function(){
+    $('a.buttonh').on('click', function(e) {
+    // e.preventDefault();
+    var tr = $(this).closest('tr');
+    
+    // Pega os valores de cada célula da linha
+    var namecliente = tr.find('.nf').text();  // Supondo que as células com o nome tenham a classe 'name'
+    var cnpjcliente = tr.find('.inf').text();  // Supondo que as células com o CNPJ tenham a classe 'cnpj'
+   
+
+
+    var tipo = '';
+    if ($(this).hasClass('nf')) {
+      tipo = 'nfpag2';
+    } else if ($(this).hasClass('inf')) {
+      tipo = 'infpag2';
+    }
+    // Preenche os campos ocultos com os dados da linha
+    $('#nf').val(namecliente);
+    $('#inf').val(cnpjcliente);
+    $('#tipo').val(tipo);
+
+    $('#codig').val('{{ codigo }}')
+    $('#name').val('{{ nome }}')
+    $('#cnpj').val('{{ CNPJ }}')
+    $('#loja').val('{{ loja }}')
+    $('#reg').val('{{ reg }}')
+    $('#estado').val('{{ estado }}')
+    $('#muni').val('{{ muni }}')
+
+    $('#fdc').submit();
+  });
+});
   </script>
 </body>
 </html>

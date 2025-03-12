@@ -37,8 +37,25 @@ def chack():
       codigo = request.form['codig']
       nome = request.form['name']
       cnpj= request.form['cnpj']
-      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj))
+      loja= request.form['loja']
+      reg= request.form['reg']
+      muni= request.form['muni']
+      estado= request.form['estado']
+      tipo = 'codigo'
+      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni ))
+    case 'nfpag2':
+      nf = request.form['nf']
+      inf = request.form['inf']
 
+      codigo = request.form['codig']
+      nome = request.form['name']
+      cnpj= request.form['cnpj']
+      loja= request.form['loja']
+      reg= request.form['reg']
+      muni= request.form['muni']
+      estado= request.form['estado']
+      tipo = 'nf'
+      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni, nf=nf, inf=inf ))
 
 
 
@@ -62,6 +79,9 @@ SELECT
 ,	SUM(VW.Valor_Total)
 , SUM(VW.VLRTOTAL)
 , VW.Loja_Cliente
+, VW.REGIAO_DESC
+, VW.Estado_Entrega
+, VW.Minucipio_entrega
 
 FROM VW_FATURAMENTO_2023 VW
 
@@ -99,6 +119,10 @@ FROM VW_FATURAMENTO_2023 VW
 	VW.Cod_Cliente
 ,	VW.Nome_Cliente
 ,	VW.CNPJ
+, VW.Loja_Cliente
+, VW.REGIAO_DESC
+, VW.Estado_Entrega
+, VW.Minucipio_entrega
 
 """
 
@@ -120,62 +144,124 @@ FROM VW_FATURAMENTO_2023 VW
 @app.route('/detalhes/<codigo>')
 def ini(codigo):
   codigo=codigo
-  nome = request.args.get('nome')
-  cnpj = request.args.get('cnpj')
+  tipo = request.args.get('tipo')
 
   conexao = pyodbc.connect(get())
   cursor = conexao.cursor()
   
-  query="""
-  SELECT
-	VW.Cod_Cliente
-, VW.Loja_Cliente
-, VW.FILIAL
-, VW.MUNICIPIO
-, VW.REGIAO_DESC  
-,	VW.CNPJ
-, SUM(VW.VLRTOTAL)
+  match tipo:
+    case 'codigo':
+      nome = request.args.get('nome')
+      cnpj = request.args.get('cnpj')
+      loja = request.args.get('loja')
+      reg = request.args.get('reg')
+      estado = request.args.get('estado')
+      muni = request.args.get('muni')
+      tipagem = 'codigo'
 
-FROM VW_FATURAMENTO_2023 VW
-  
-  """
-  conditions = []
-  params = []
+      query="""
+      SELECT
+      VW.Cod_Cliente
+    , VW.NF
+    , VW.ITEMNF
+    , VW.VLRTOTAL
+    , SUM(VW.Quantidade)
+    , VW.Loja_Cliente
 
-  if codigo:
-    conditions.append("VW.Cod_Cliente = ?")
-    params.append(codigo)
+    FROM VW_FATURAMENTO_2023 VW
+      
+      """
+      conditions = []
+      params = []
 
-# Se houver condições, adiciona WHERE
-  if conditions:
-    query += " WHERE " + " AND ".join(conditions)
+      if codigo:
+        conditions.append("VW.Cod_Cliente = ?")
+        params.append(codigo)
+      if loja:
+        conditions.append("VW.Loja_Cliente = ?")
+        params.append(loja)
+
+    # Se houver condições, adiciona WHERE
+      if conditions:
+        query += " WHERE " + " AND ".join(conditions)
 
 
-  query +="""
-  GROUP BY
-	VW.Cod_Cliente
-, VW.Loja_Cliente
-, VW.FILIAL
-, VW.MUNICIPIO
-, VW.REGIAO_DESC  
-,	VW.CNPJ
+      query +="""
+      GROUP BY
+      VW.Cod_Cliente
+      , VW.NF
+      , VW.ITEMNF
+      , VW.VLRTOTAL
+      , VW.Loja_Cliente
+
+    """ 
+    case 'nf':
+      nome = request.args.get('nome')
+      cnpj = request.args.get('cnpj')
+      loja = request.args.get('loja')
+      reg = request.args.get('reg')
+      estado = request.args.get('estado')
+      muni = request.args.get('muni')
+      nf = request.args.get('nf')
+      inf = request.args.get('inf')
+      tipagem = 'nf'
 
 
-"""
-  if params:
-    cursor.execute(query, params)
-  else:
-    cursor.execute(query)  
+      query="""
+      SELECT
+      VW.NF
+    , VW.ITEMNF
+    , VW.Valor_Unitario
+    , VW.Quantidade
+    , VW.Descricao
+    , VW.DescricaoCientifica
+    , VW.Produto
+
+    FROM VW_FATURAMENTO_2023 VW
+      
+      """
+      conditions = []
+      params = []
+
+      if codigo:
+        conditions.append("VW.NF = ?")
+        params.append(nf)
+      
+
+    # Se houver condições, adiciona WHERE
+      if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+
+      query +="""
+      GROUP BY
+      VW.NF
+    , VW.ITEMNF
+    , VW.Valor_Unitario
+    , VW.Quantidade
+    , VW.Descricao
+    , VW.DescricaoCientifica
+    , VW.Produto
+
+    """ 
+      
+
+
+
+############render da pagina################       
+  cursor.execute(query, params)  
   
   resultado_final = cursor.fetchall()
-
+      
+  
   tabelas = {
     'tabela': resultado_final
   }
 
   cursor.close()
   conexao.close()
-  return render_template('clint.html', tabela=tabelas, nome=nome, codigo=codigo)
-  
+  return render_template('clint.html', tabela=tabelas, nome=nome, codigo=codigo, CNPJ=cnpj , tipo=tipagem, loja=loja, reg=reg, estado=estado, muni=muni, nf=nf )
+
+#############final#################
 if __name__ == '__main__':
     app.run(debug=True)

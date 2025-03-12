@@ -118,9 +118,16 @@ h2 {
   transition: 0.8s;
 
 }
-.buttonh:hover {
+
+.buttonj{
+  color: inherit; /* Mantém a cor do texto da tabela */
+  text-decoration: none; /* Remove sublinhado */
+  padding: 8px; /* Mesmo espaçamento das células */
+  transition: 0.8s;
+}
+.buttonj:hover {
   background-color: rgba(0, 0, 0, 0.1);
-  transform: scale(1.05);
+  transform: scale(1.005);
 }
 
 .button:hover {
