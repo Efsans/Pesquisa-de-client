@@ -61,6 +61,7 @@ SELECT
 ,	SUM(VW.Valor_Unitario)
 ,	SUM(VW.Valor_Total)
 , SUM(VW.VLRTOTAL)
+, VW.Loja_Cliente
 
 FROM VW_FATURAMENTO_2023 VW
 
@@ -132,7 +133,6 @@ def ini(codigo):
 , VW.FILIAL
 , VW.MUNICIPIO
 , VW.REGIAO_DESC  
-,	VW.Nome_Cliente
 ,	VW.CNPJ
 , SUM(VW.VLRTOTAL)
 
@@ -158,7 +158,6 @@ FROM VW_FATURAMENTO_2023 VW
 , VW.FILIAL
 , VW.MUNICIPIO
 , VW.REGIAO_DESC  
-,	VW.Nome_Cliente
 ,	VW.CNPJ
 
 
