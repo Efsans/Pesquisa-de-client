@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado da Pesquisa</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_result.css') }}">
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <h1>detalhes Pesquisa</h1>
+    </div>
+  </header>
+  <div class="container">
+    <div>
+      <div>codigo cliente: {{ codigo }}</div>
+      <div>nome do cliente: {{ nome }}</div>
+    </div>
+    <div class="button-container">
+      <!-- <button class="button">Detalhes</button>
+      <button class="button">NN</button>
+      <button class="button">Voltar</button> -->
+    </div>
+    {% if tabela %}
+    <div class="tabela_scroll">
+      <table>
+        <tread>
+          <tr>
+            <th>Código</th>
+            <th>Lojas</th>
+            <th>filial</th>
+            <th>CNPJ</th>
+            <th>total produtos</th>
+            <th>total pedidos</th>
+            <th>quant. total</th>
+            <th>valor total</th>
+          </tr>
+        </tread>
+        <tbody>  
+          {% for linha in tabela.tabela %}
+          <tr>
+            <td><a href="#" onclick="redirecionar ('{{ linha.Cod_Cliente }}')" class="buttonh">{{ linha.Cod_Cliente }}</a></td>
+            <td>{{ linha.Loja_Cliente }}</td>
+            <td>{{ linha.Nome_Cliente }}</td>
+            <td>{{ linha.FILIAL }}</td>
+            <td>{{ linha.MUNICIPIO }}</td>
+            <td>{{ linha.REGIAO_DESC}}</td>
+            <td class="cnpj">{{ linha.CNPJ }}</td>
+            <td class="form">{{ linha[7] }}</td>
+            
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p>Nenhum resultado encontrado.</p>
+    {% endif %}
+  </div>
+  <footer>
+    <div class="footer-container">
+      <p>&copy; Eduard</p>
+      
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <script>
+  $(document).ready(function() {
+    // Formata os valores monetários para o padrão brasileiro
+    $(".form").each(function() {
+      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
+      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    });
+
+    // Remove os números decimais para os inteiros
+    $(".int").each(function() {
+      let valor = parseInt($(this).text()) || 0;
+      $(this).text(valor);
+    });
+
+    $(".cnpj").mask("00.000.000/0000-00")
+});  
+  </script>
+</body>
+</html>
