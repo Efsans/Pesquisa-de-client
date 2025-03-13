@@ -14,19 +14,24 @@
       <h1>detalhes Pesquisa</h1>
     </div>
   </header>
+  
   <div class="container">
+    <button onclick="window.history.back()">Voltar</button>
     <div>
-      {% if tipo == "codigo" %}
-        <div>codigo cliente: {{ codigo }}</div>
-        <div>nome do cliente: {{ nome }}</div>
-        <div>Cnpj do cliente: {{ CNPJ }}</div>
-        <div>loja do cliente: {{ loja }}</div>
-        <div>região do cliente: {{ reg }}</div>
-        <div>estado do cliente: {{ estado }}</div>
-        <div>municipio do cliente: {{ muni }}</div>
-      {% elif tipo == "nf" %}
-        <div>nota fiscal: {{ nf }}</div>
-        <div>codigo: {{ codigo }}</div>
+      {% if dados.tipo == "codigo" %}
+        <div>codigo cliente: {{ dados.codigo }}</div>
+        <div>nome do cliente: {{ dados.nome }}</div>
+        <div>Cnpj do cliente: {{ dados.CNPJ }}</div>
+        <div>loja do cliente: {{ dados.loja }}</div>
+        <div>região do cliente: {{ dados.reg }}</div>
+        <div>estado do cliente: {{ dados.estado }}</div>
+        <div>municipio do cliente: {{ dados.muni }}</div>
+      {% elif dados.tipo == "nf" %}
+        <div>nota fiscal: {{ dados.nf }}</div>
+        <div>codigo: {{ dados.codigo }}</div>
+        <div>nome do cliente: {{ dados.nome }}</div>
+        <div>Cnpj do cliente: {{ dados.CNPJ }}</div>
+        <div>loja do cliente: {{ dados.loja }}</div>
       {%endif%}    
     </div>
     <div class="button-container">
@@ -34,7 +39,7 @@
       <button class="button">NN</button>
       <button class="button">Voltar</button> -->
     </div>
-    {% if tipo == "nf" %}
+    {% if dados.tipo == "nf" %}
       {% if tabela %}
       <div class="tabela_scroll">
         <table>
@@ -56,8 +61,8 @@
               <td>{{ linha.Produto }}</td>
               <td>{{ linha.Descricao }}</td>
               <td>{{ linha.DescricaoCientifica }}</td>
-              <td>{{ linha.Quantidade }}</td>
-              <td>{{ linha.Valor_Unitario }}</td>
+              <td class="int">{{ linha.Quantidade }}</td>
+              <td class="form">{{ linha.Valor_Unitario }}</td>
               
             </tr>
             {% endfor %}
@@ -71,7 +76,7 @@
     {% endif %}
     
     
-    {% if tipo == "codigo" %}
+    {% if dados.tipo == "codigo" %}
       {% if tabela %}
       <div class="tabela_scroll">
         <table>
@@ -80,7 +85,7 @@
               <th>nota fiscal</th>
               <th>serie nf</th>
               <th>valor total</th>
-              <th>volume</th>
+              <th>quantidade</th>
 
             </tr>
           </tread>
@@ -106,10 +111,11 @@
 
 
 <!-- ############################################# -->
+     
   </div>
   <footer>
     <div class="footer-container">
-      <p>&copy; Eduard</p>
+      <p>&copy; Eduardo</p>
       
     </div>
   </footer>
@@ -133,30 +139,29 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script>
   $(document).ready(function() {
-    // Formata os valores monetários para o padrão brasileiro
-    $(".form").each(function() {
-    // Pega o texto, converte para float e formata
-    let valor = parseFloat($(this).text().replace('.', '').replace(',', '.')) || 0;
-    $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-});
-
-    // Remove os números decimais para os inteiros
     $(".int").each(function() {
-      let valor = parseInt($(this).text()) || 0;
-      $(this).text(valor);
+        let valor = parseInt($(this).text()) || 0;
+        $(this).text(valor);
     });
 
-    $(".cnpj").mask("00.000.000/0000-00")
-});
-$(".int").each(function() {
-      let valor = parseInt($(this).text()) || 0;
-      $(this).text(valor);
-    });
     $(".form").each(function() {
-      let valor = parseFloat($(this).text().replace(/,/g, '.')) || 0;
-      $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+        let texto = $(this).text().trim();
+
+        // Substitui a vírgula por ponto para evitar erro na conversão
+        let valor = parseFloat(texto.replace(/,/g, '.'));
+
+        if (!isNaN(valor)) {
+            let partes = texto.split('.');
+            let parteInteira = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let parteDecimal = partes[1] ? partes[1] : '0';
+
+            // Mantém todas as casas decimais do número original
+            $(this).text(parteInteira + ',' + parteDecimal);
+        }
     });
-    
+
+    $(".cnpj").mask("00.000.000/0000-00");
+});
     
     $(function(){
     $('a.buttonh').on('click', function(e) {
@@ -180,13 +185,13 @@ $(".int").each(function() {
     $('#inf').val(cnpjcliente);
     $('#tipo').val(tipo);
 
-    $('#codig').val('{{ codigo }}')
-    $('#name').val('{{ nome }}')
-    $('#cnpj').val('{{ CNPJ }}')
-    $('#loja').val('{{ loja }}')
-    $('#reg').val('{{ reg }}')
-    $('#estado').val('{{ estado }}')
-    $('#muni').val('{{ muni }}')
+    $('#codig').val('{{ dados.codigo }}')
+    $('#name').val('{{ dados.nome }}')
+    $('#cnpj').val('{{ dados.CNPJ }}')
+    $('#loja').val('{{ dados.loja }}')
+    $('#reg').val('{{ dados.reg }}')
+    $('#estado').val('{{ dados.estado }}')
+    $('#muni').val('{{ dados.muni }}')
 
     $('#fdc').submit();
   });

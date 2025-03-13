@@ -26,8 +26,9 @@ def pesquisa():
   
   mult = request.form['mult']
   tipo = request.form['tipo_valor']
+  a= request.form['a']
 
-  return redirect(url_for('resultado', mult=mult, tipo=tipo))
+  return redirect(url_for('resultado', mult=mult, tipo=tipo, a=a))
 
 @app.route('/chack', methods=['POST'])
 def chack():
@@ -42,7 +43,8 @@ def chack():
       muni= request.form['muni']
       estado= request.form['estado']
       tipo = 'codigo'
-      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni ))
+      
+      return redirect(url_for('cod_cliente', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni ))
     case 'nfpag2':
       nf = request.form['nf']
       inf = request.form['inf']
@@ -55,7 +57,7 @@ def chack():
       muni= request.form['muni']
       estado= request.form['estado']
       tipo = 'nf'
-      return redirect(url_for('ini', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni, nf=nf, inf=inf ))
+      return redirect(url_for('cod_cliente', codigo=codigo, nome=nome, cnpj=cnpj, tipo=tipo, loja=loja, reg=reg, estado=estado, muni=muni, nf=nf, inf=inf ))
 
 
 
@@ -64,6 +66,7 @@ def chack():
 def resultado():
   tipo= request.args.get('tipo')
   valor= request.args.get('mult')
+  a= request.args.get('a')
   conexao = pyodbc.connect(get())
   cursor = conexao.cursor()
 
@@ -107,7 +110,10 @@ FROM VW_FATURAMENTO_2023 VW
     case 'CPF':
       valor = formatinho(valor)
       conditions.append("VW.CNPJ = ?")
-      params.append(valor)    
+      params.append(valor)
+  if a:
+      conditions.append("VW.Estado_Entrega = ?")
+      params.append(a)    
 
 # Se houver condições, adiciona WHERE
   if conditions:
@@ -142,7 +148,7 @@ FROM VW_FATURAMENTO_2023 VW
 
 ################resultados do click no campo da tabela################# 
 @app.route('/detalhes/<codigo>')
-def ini(codigo):
+def cod_cliente(codigo):
   codigo=codigo
   tipo = request.args.get('tipo')
 
@@ -158,14 +164,14 @@ def ini(codigo):
       estado = request.args.get('estado')
       muni = request.args.get('muni')
       tipagem = 'codigo'
-
+      nf= None
       query="""
       SELECT
       VW.Cod_Cliente
     , VW.NF
     , VW.ITEMNF
     , VW.VLRTOTAL
-    , SUM(VW.Quantidade)
+    , VW.Quantidade
     , VW.Loja_Cliente
 
     FROM VW_FATURAMENTO_2023 VW
@@ -180,6 +186,10 @@ def ini(codigo):
       if loja:
         conditions.append("VW.Loja_Cliente = ?")
         params.append(loja)
+      if nome:
+        conditions.append("VW.Nome_Cliente = ?")
+        params.append(nome)
+  
 
     # Se houver condições, adiciona WHERE
       if conditions:
@@ -193,6 +203,7 @@ def ini(codigo):
       , VW.ITEMNF
       , VW.VLRTOTAL
       , VW.Loja_Cliente
+      , VW.Quantidade
 
     """ 
     case 'nf':
@@ -203,7 +214,6 @@ def ini(codigo):
       estado = request.args.get('estado')
       muni = request.args.get('muni')
       nf = request.args.get('nf')
-      inf = request.args.get('inf')
       tipagem = 'nf'
 
 
@@ -257,10 +267,23 @@ def ini(codigo):
   tabelas = {
     'tabela': resultado_final
   }
+  
+  dados = {
+    'nome': nome ,
+    'codigo': codigo ,
+    'CNPJ': cnpj ,
+    'tipo': tipagem ,
+    'loja': loja ,
+    'reg': reg ,
+    'estado': estado ,
+    'muni': muni ,
+    'estado': estado,  
+    'nf' : nf
+  }
 
   cursor.close()
   conexao.close()
-  return render_template('clint.html', tabela=tabelas, nome=nome, codigo=codigo, CNPJ=cnpj , tipo=tipagem, loja=loja, reg=reg, estado=estado, muni=muni, nf=nf )
+  return render_template('clint.html', tabela=tabelas, dados=dados)
 
 #############final#################
 if __name__ == '__main__':

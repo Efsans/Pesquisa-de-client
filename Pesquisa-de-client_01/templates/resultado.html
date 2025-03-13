@@ -16,9 +16,7 @@
   </header>
   <div class="container">
     <div class="menu">
-      <div class="menu-item">Menu 1</div>
-      <div class="menu-item">Menu 2</div>
-      <div class="menu-item">Menu 3</div>
+      <button onclick="window.history.back()">Voltar</button>
     </div>
     <div class="button-container">
       <form id="frm" action="/" method="post">
@@ -27,9 +25,16 @@
         <p id="alerta" style="font-weight: bold; color: rgb(3, 2, 71);"></p><br>
 
         <button type="submit" class="button">Pesquisar</button><br>
-      </form>
-      <!-- <button class="button">Detalhes</button>
-      <button class="button">NN</button>
+      
+        <select name="est" id="est">
+          <option value=""></option>
+          <option value="PR">PR</option>
+          <option value="AL">AL</option>
+          <option value="AP">AP</option>
+        </select>
+      </form>  
+      
+      <!-- <button class="button">NN</button>
       <button class="button">Voltar</button> -->
     </div>
     {% if tabela %}
@@ -40,7 +45,7 @@
             <th>Código</th>
             <th>Nome Cliente</th>
             <th>Loja</th>
-            <th>Rrgião</th>
+            <th>Região</th>
             <th>Estado Entrega</th>
             <th>Municipio Entraga</th>
             <th>CNPJ</th>
@@ -90,6 +95,7 @@
     <input type="hidden" id="estado" name="estado">
     <input type="hidden" id="muni" name="muni">
     <input type="hidden" id="tipo" name="tipo">
+    <input type="hidden" id="a" name="a">
 
     
   </form>
@@ -124,14 +130,21 @@
     document.getElementById("alerta").innerText = "Tipo detectado: " + tipo;
     document.getElementById("tipo_valor").value = tipo;
 }
-  $(document).ready(function() {
-    // Formata os valores monetários para o padrão brasileiro
-    $(".form").each(function() {
-    // Pega o texto, converte para float e formata
-    let valor = parseFloat($(this).text().replace('.', '').replace(',', '.')) || 0;
-    $(this).text(valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-});
+function formatarNumero(numero) {
+    let partes = numero.toString().split('.'); // Divide a parte inteira da decimal
+    let parteInteira = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Adiciona pontos na parte inteira
+    let parteDecimal = partes[1] ? partes[1] : '0'; // Garante que exista uma parte decimal
 
+    return parteInteira + ',' + parteDecimal;
+}
+
+function formatarTabela() {
+    document.querySelectorAll(".form").forEach(td => {
+        td.textContent = formatarNumero(td.textContent);
+    });
+}
+
+formatarTabela();
     // Remove os números decimais para os inteiros
     $(".int").each(function() {
       let valor = parseInt($(this).text()) || 0;
@@ -139,7 +152,7 @@
     });
 
     $(".cnpj").mask("00.000.000/0000-00")
-});
+
 // #######################
   $(function(){
     $('a.buttonh').on('click', function(e) {
@@ -154,6 +167,7 @@
     var regCliente = tr.find('.reg').text();
     var estadoCliente = tr.find('.estado').text();
     var muniCliente = tr.find('.muni').text();
+    var est = tr.find('#est').text();
 
 
     var tipo = '';
@@ -181,6 +195,7 @@
     $('#estado').val(estadoCliente);
     $('#muni').val(muniCliente);
     $('#tipo').val(tipo);
+    $('#a').val(est);
 
     $('#fdc').submit();
   });
